@@ -8,7 +8,7 @@ class Downloader:
         self.api = SentinelAPI(str_username, str_password, str_link)
         self.products = None
 
-    def search_polygon(self, footprint, str_date_start, str_date_end, str_platform_name, percentage):
+    def search_polygon(self, footprint: object, str_date_start: object, str_date_end: object, str_platform_name: object, percentage: object) -> object:
         print('searching')
         self.products = self.api.query(footprint,
                                        date=(str_date_start, str_date_end),
