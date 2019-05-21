@@ -1,4 +1,4 @@
-from sentinelsat import SentinelAPI, read_geojson, geojson_to_wkt
+from sentinelsat import SentinelAPI
 
 max_attempt = 10
 
@@ -23,5 +23,10 @@ class Downloader:
         df_products = self.api.to_dataframe(self.products)
         return df_products
 
+    def download_geoproduct(self, path):
+        self.api.download_all(self.products, directory_path=path, max_attempts=max_attempt, checksum=True)
+        print('download Geos')
+        gdf_products = self.api.to_geodataframe(self.products)
+        return gdf_products
 
 
