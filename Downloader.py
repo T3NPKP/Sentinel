@@ -3,7 +3,7 @@ from sentinelsat import SentinelAPI, read_geojson, geojson_to_wkt
 username = 'kepeilei'
 password = '297089702yuxiaO'
 path = '/Users/DavidLei/PycharmProjects/untitled/testfile.geojson'
-link = 'https://scihub.copernicus.eu/apihub/search'
+link = 'https://scihub.copernicus.eu/apihub/'
 max_attempt = 10
 
 
