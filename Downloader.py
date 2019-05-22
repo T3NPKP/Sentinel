@@ -32,4 +32,7 @@ class Downloader:
         gdf_products = self.api.to_geodataframe(self.products)
         return gdf_products
 
+    def download_json(self):
+        return self.api.to_geojson(self.products)
+
 
