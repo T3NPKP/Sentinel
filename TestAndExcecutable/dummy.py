@@ -1,9 +1,13 @@
-from satpy.scene import Scene
-from satpy import find_files_and_readers
-from datetime import datetime
+try:
+    src_ds = gdal.Open( "INPUT.tif" )
+except (RuntimeError, e):
+    print ('Unable to open INPUT.tif')
+    print (e)
+    sys.exit(1)
 
-files = find_files_and_readers(base_dir="/Users/DavidLei/PycharmProjects/untitled")
-
-scn = Scene(filenames=files)
-scn.load(['true_color'])
-scn.save_dataset('true_color', filename='true_color_S2_gnc_tutorial' + '.png')
+try:
+    srcband = src_ds.GetRasterBand(1)
+except (RuntimeError):
+    # for example, try GetRasterBand(10)
+    print ('Band ( %i ) not found' % band_num)
+    sys.exit(1)
