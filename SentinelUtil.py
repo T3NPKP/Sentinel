@@ -27,29 +27,30 @@ def non_liner_scale(original, threshold_low, threshold_high):
     return new.astype(np.uint8)
 
 
-blue = rasterio.open(path + '_B02_10m.jp2')
-green = rasterio.open(path + '_B03_10m.jp2')
-red = rasterio.open(path + '_B04_10m.jp2')
-blue = blue.read(1)
-green = green.read(1)
-red = red.read(1)
-length = len(red)
-data = np.zeros([length, length, 3], dtype=np.uint16)
-print(f'red has max {np.amax(red)} and min {np.amin(red)}')
-print(f'blue has max {np.amax(blue)} and min {np.amin(blue)}')
-print(f'green has max {np.amax(green)} and min {np.amin(green)}')
+def to_rgb(file_path):
+    blue = rasterio.open(path + '_B02_10m.jp2')
+    green = rasterio.open(path + '_B03_10m.jp2')
+    red = rasterio.open(path + '_B04_10m.jp2')
+    blue = blue.read(1)
+    green = green.read(1)
+    red = red.read(1)
+    length = len(red)
+    data = np.zeros([length, length, 3], dtype=np.uint16)
+    print(f'red has max {np.amax(red)} and min {np.amin(red)}')
+    print(f'blue has max {np.amax(blue)} and min {np.amin(blue)}')
+    print(f'green has max {np.amax(green)} and min {np.amin(green)}')
 
-print('to np array')
-for i in range(length):
-    print(f'writing {i}th row')
-    for j in range(length):
-        data[i, j, 0] = red[i, j]
-        data[i, j, 1] = green[i, j]
-        data[i, j, 2] = blue[i, j]
+    print('to np array')
+    for i in range(length):
+        print(f'writing {i}th row')
+        for j in range(length):
+            data[i, j, 0] = red[i, j]
+            data[i, j, 1] = green[i, j]
+            data[i, j, 2] = blue[i, j]
 
-# rescaled = linear_scale(data)
-rescaled = non_liner_scale(data, 2000, 2000)
+    # rescaled = linear_scale(data)
+    rescaled = non_liner_scale(data, 2000, 2000)
 
-img = img.fromarray(rescaled, 'RGB')
-img.save('my1.png')
-img.show()
+    photo = img.fromarray(rescaled, 'RGB')
+    photo.save('my1.png')
+    photo.show()
