@@ -9,6 +9,19 @@ fourteen_bit = 16384
 eight_bit = 255
 
 
+def get_colorTuple(rgb):
+    mesh_rgb = rgb[:,:-1,:]
+    colorTuple = mesh_rgb.reshape((mesh_rgb.shape[0] * mesh_rgb.shape[1]), 3)
+    colorTuple = np.insert(colorTuple, 3, 1.0, axis=1)
+    # for t in colorTuple:
+    #     if t [0] < 0.0001 and t[1] < 0.0001 and t[2] < 0.0001:
+    #         t[0] = 1
+    #         t[1] = 1
+    #         t[2] = 1
+    #         t[3] = 0
+    return colorTuple
+
+
 def linear_scale(original):
     new = (255.0 / original.max() * (original - original.min())).astype(np.uint8)
     return new
@@ -27,10 +40,10 @@ def non_liner_scale(original, threshold_low, threshold_high):
     return new.astype(np.uint8)
 
 
-def to_rgb(file_path):
-    blue = rasterio.open(path + '_B02_10m.jp2')
-    green = rasterio.open(path + '_B03_10m.jp2')
-    red = rasterio.open(path + '_B04_10m.jp2')
+def to_rgb(file_path, is_linear, ignore_low = 2000, ignore_high = 2000):
+    blue = rasterio.open(file_path + '_B02_10m.jp2')
+    green = rasterio.open(file_path + '_B03_10m.jp2')
+    red = rasterio.open(file_path + '_B04_10m.jp2')
     blue = blue.read(1)
     green = green.read(1)
     red = red.read(1)
@@ -48,9 +61,15 @@ def to_rgb(file_path):
             data[i, j, 1] = green[i, j]
             data[i, j, 2] = blue[i, j]
 
-    # rescaled = linear_scale(data)
-    rescaled = non_liner_scale(data, 2000, 2000)
+    if is_linear:
+        rescaled = linear_scale(data)
+    else:
+        rescaled = non_liner_scale(data, ignore_low, ignore_high)
+    return rescaled
 
-    photo = img.fromarray(rescaled, 'RGB')
+
+def export_photo(data):
+    photo = img.fromarray(data, 'RGB')
     photo.save('my1.png')
     photo.show()
+

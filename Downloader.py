@@ -17,6 +17,7 @@ class Downloader:
                                        cloudcoverpercentage=(percentage[0], percentage[1]))
         size = self.api.get_products_size(self.products)
         print(f'found {size}GiB of data')
+        # print(self.products)
 
     def download_zip(self, path):
         self.api.download_all(self.products, path, max_attempt, True)
@@ -37,5 +38,8 @@ class Downloader:
 
     def download_json(self):
         return self.api.to_geojson(self.products)
+
+    def download_one(self, key, path):
+        self.api.download(key, path, True)
 
 
