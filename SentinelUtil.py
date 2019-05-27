@@ -40,7 +40,7 @@ def non_liner_scale(original, threshold_low, threshold_high):
     return new.astype(np.uint8)
 
 
-def to_rgb(file_path, is_linear, ignore_low=1000, ignore_high=3000):
+def to_rgb(file_path, is_linear, ignore_low=1250, ignore_high=2750):
     blue = rasterio.open(file_path + '_B02_10m.jp2')
     green = rasterio.open(file_path + '_B03_10m.jp2')
     red = rasterio.open(file_path + '_B04_10m.jp2')
@@ -76,6 +76,9 @@ def export_photo(data, name='my.png'):
 
 def test_method():
     stuff = to_rgb(path, False)
-    export_photo(stuff, 'my2.png')
+    export_photo(stuff, 'my3.png')
+
+
+test_method()
 
 
