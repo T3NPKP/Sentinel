@@ -20,7 +20,7 @@ for key, value in downloader.products.items():
         # print(value)
         package_info.append(str(value))
         # print(package_info)
-        downloader.download_one(str(key), path='/Users/DavidLei/PycharmProjects/untitled')
+        # downloader.download_one(str(key), path='/Users/DavidLei/PycharmProjects/untitled')
 
 for original_string in package_info:
     process.divide_string(original_string)

@@ -1,0 +1,139 @@
+0{'title':
+ 1'S2B_MSIL2A_20190502T234629_N0211_R073_T01WCQ_20190503T020709',
+2'link':
+3"https://scihub.copernicus.eu/apihub/odata/v1/Products('91a6e9f9-f343-4131-974c-f7afb4c02281')/$value",
+4'link_alternative':
+5"https://scihub.copernicus.eu/apihub/odata/v1/Products('91a6e9f9-f343-4131-974c-f7afb4c02281')/",
+6'link_icon':
+7"https://scihub.copernicus.eu/apihub/odata/v1/Products('91a6e9f9-f343-4131-974c-f7afb4c02281')/Products('Quicklook')/$value",
+8'summary':
+9'Date:
+ 10 2019-05-02T23:46:29.024Z,
+Instrument:
+MSI,
+Mode:
+,
+Satellite:
+Sentinel-2,
+Size:
+997.05
+MB',
+'beginposition':
+     21 datetime.datetime(2019,
+5,
+2,
+23,
+46,
+29,
+     27 24000),
+'endposition':
+     29 datetime.datetime(2019,
+5,
+2,
+23,
+46,
+29,
+     35 24000),
+'ingestiondate':
+datetime.datetime(2019,
+5,
+3,
+6,
+45,
+42,
+875000),
+'orbitnumber':
+11253,
+'relativeorbitnumber':
+73,
+'cloudcoverpercentage':
+0.7703989999999998,
+'highprobacloudspercentage':
+0.155676,
+'mediumprobacloudspercentage':
+0.342457,
+'notvegetatedpercentage':
+0.065624,
+'snowicepercentage':
+98.65196899999998,
+'unclassifiedpercentage':
+0.346611,
+'vegetationpercentage':
+0.0,
+'waterpercentage':
+0.059545,
+'gmlfootprint':
+'<gml:Polygon
+srsName="http://www.opengis.net/gml/srs/epsg.xml#4326"
+xmlns:gml="http://www.opengis.net/gml">\n
+<gml:outerBoundaryIs>\n
+<gml:LinearRing>\n
+    <gml:coordinates>66.59727811827406,180
+    66.56575634048507,178.49016571437696
+    67.54752820915654,178.3036205236888
+    67.58320270204283,180
+    67.60167573054316,-179.12158
+    66.61738280738616,-179.03702
+    66.59727811827406,180</gml:coordinates>\n
+</gml:LinearRing>\n
+</gml:outerBoundaryIs>\n</gml:Polygon>',
+'format':
+'SAFE',
+'instrumentshortname':
+'MSI',
+'instrumentname':
+'Multi-Spectral
+Instrument',
+'footprint':
+'MULTIPOLYGON
+    (((178.49016571437696
+    66.56575634048507,
+    179.999999
+    66.59727811827406,
+    180
+    66.59727813915161,
+    180
+    67.58320272307263,
+    179.999999
+    67.58320270204283,
+    178.3036205236888
+    67.54752820915654,
+    178.49016571437696
+    66.56575634048507)),
+    ((-180
+    66.59727813915161,
+    -179.03702
+    66.61738280738616,
+    -179.12158
+    67.60167573054316,
+    -180
+    67.58320272307263,
+    -180
+    66.59727813915161)))',
+'s2datatakeid':
+'GS2B_20190502T234629_011253_N02.11',
+'platformidentifier':
+'2017-013A',
+'orbitdirection':
+'DESCENDING',
+'platformserialidentifier':
+'Sentinel-2B',
+'processingbaseline':
+'02.11',
+'processinglevel':
+'Level-2A',
+'producttype':
+'S2MSI2A',
+'platformname':
+'Sentinel-2',
+'size':
+'997.05
+MB',
+'filename':
+    'S2B_MSIL2A_20190502T234629_N0211_R073_T01WCQ_20190503T020709.SAFE',
+'level1cpdiidentifier':
+'S2B_OPER_MSI_L1C_TL_EPAE_20190503T012751_A011253_T01WCQ_N02.07',
+'identifier':
+'S2B_MSIL2A_20190502T234629_N0211_R073_T01WCQ_20190503T020709',
+'uuid':
+'91a6e9f9-f343-4131-974c-f7afb4c02281'}
