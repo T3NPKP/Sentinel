@@ -32,7 +32,7 @@ class Downloader:
     def download_geoproduct(self, path, download_file):
         if download_file:
             self.download_zip(path)
-        print('download Geos')
+        # print('download Geos')
         gdf_products = self.api.to_geodataframe(self.products)
         return gdf_products
 

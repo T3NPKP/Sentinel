@@ -13,12 +13,6 @@ def get_colorTuple(rgb):
     mesh_rgb = rgb[:,:-1,:]
     colorTuple = mesh_rgb.reshape((mesh_rgb.shape[0] * mesh_rgb.shape[1]), 3)
     colorTuple = np.insert(colorTuple, 3, 1.0, axis=1)
-    # for t in colorTuple:
-    #     if t [0] < 0.0001 and t[1] < 0.0001 and t[2] < 0.0001:
-    #         t[0] = 1
-    #         t[1] = 1
-    #         t[2] = 1
-    #         t[3] = 0
     return colorTuple
 
 

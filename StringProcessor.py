@@ -13,8 +13,8 @@ def divide_string(original):
     time = ""
     for i in range(29, 36):
         time += str_lists[i]
+    time = time[18: -2]
     info = product_info(str_lists[1], cood, time)
-    print(f'coordinate is {info.coordinates}')
-    print(f'name is {info.name}')
-    print(f'time is {info.time}')
+    tmp = len(info.name) - 2
+    info.name = info.name[1: tmp]
     return info

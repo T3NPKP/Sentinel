@@ -22,12 +22,15 @@ for key, value in downloader.products.items():
         # print(package_info)
         # downloader.download_one(str(key), path='/Users/DavidLei/PycharmProjects/untitled')
 
+processed_strings = []
 for original_string in package_info:
-    process.divide_string(original_string)
+    processed_strings.append(process.divide_string(original_string))
+
+print(processed_strings)
 # df_products = downloader.download_products('/Users/DavidLei/PycharmProjects/untitled', False)
 gdf_products: geopandas.geodataframe = downloader.download_geoproduct(path='/Users/DavidLei/PycharmProjects/untitled'
                                                                       , download_file=False)
-print(gdf_products.count())
-print(downloader.download_json())
+# print(gdf_products.count())
+# print(downloader.download_json())
 gdf_products.head()
 gdf_products.plot()
