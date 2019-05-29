@@ -2,15 +2,15 @@ import rasterio
 import numpy as np
 from PIL import Image as img
 
-path = '/Users/DavidLei/PycharmProjects/untitled/S2B_MSIL2A_20190502T001619_N0211_R059_T60WWD_20190502T022958.SAFE/' \
-       'GRANULE/L2A_T60WWD_A011239_20190502T001617/IMG_DATA/R10m/T60WWD_20190502T001619'
+path = '/Users/DavidLei/PycharmProjects/untitled/S2B_MSIL1C_20190502T234629_N0207_R073_T01WCR_20190503T012751.SAFE' \
+       '/GRANULE/L1C_T01WCR_A011253_20190502T234630/IMG_DATA/T01WCR_20190502T234629'
 
 fourteen_bit = 16384
 eight_bit = 255
 
 
 def get_colorTuple(rgb):
-    mesh_rgb = rgb[:,:-1,:]
+    mesh_rgb = rgb[:, :-1, :]
     colorTuple = mesh_rgb.reshape((mesh_rgb.shape[0] * mesh_rgb.shape[1]), 3)
     colorTuple = np.insert(colorTuple, 3, 1.0, axis=1)
     return colorTuple
@@ -35,9 +35,9 @@ def non_liner_scale(original, threshold_low, threshold_high):
 
 
 def to_rgb(file_path, is_linear, ignore_low=1250, ignore_high=2750):
-    blue = rasterio.open(file_path + '_B02_10m.jp2')
-    green = rasterio.open(file_path + '_B03_10m.jp2')
-    red = rasterio.open(file_path + '_B04_10m.jp2')
+    blue = rasterio.open(file_path + '_B02.jp2')
+    green = rasterio.open(file_path + '_B03.jp2')
+    red = rasterio.open(file_path + '_B04.jp2')
     blue = blue.read(1)
     green = green.read(1)
     red = red.read(1)
