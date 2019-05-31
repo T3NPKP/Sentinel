@@ -22,5 +22,5 @@ north_xform_crs = ccrs.Geodetic(globe=north_globe)
 # ax.pcolormesh(lons, lats, r, transform=north_crs, color=colorTuple)
 #
 #
-# plt.savefig(args.output, format="png", bbox_inches='tight', dpi=1200)
+# plt.savefig(args.output, format="png", bbox_inches='tight')
 
