@@ -1,12 +1,14 @@
 import rasterio
 import numpy as np
 from PIL import Image as img
+from osgeo import gdal, ogr, osr
 
-path = '/Users/DavidLei/PycharmProjects/untitled/S2B_MSIL1C_20190502T234629_N0207_R073_T01WCR_20190503T012751.SAFE' \
-       '/GRANULE/L1C_T01WCR_A011253_20190502T234630/IMG_DATA/T01WCR_20190502T234629'
+path = '/Users/DavidLei/PycharmProjects/untitled/S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE' \
+       '/GRANULE/L1C_T01WCP_A011253_20190502T234630/IMG_DATA/T01WCP_20190502T234629'
 
 fourteen_bit = 16384
 eight_bit = 255
+image_pixel = 10980
 
 
 def get_colorTuple(rgb):
@@ -111,12 +113,77 @@ def non_linear_transparent(new):
     return new
 
 
+def GetExtent(gt, cols, rows):
+    ext = []
+    xarr = [0, cols]
+    yarr = [0, rows]
+
+    for px in xarr:
+        for py in yarr:
+            x = gt[0] + (px * gt[1]) + (py * gt[2])
+            y = gt[3] + (px * gt[4]) + (py * gt[5])
+            ext.append([x, y])
+        yarr.reverse()
+    return ext
+
+
+def ReprojectCoords(coords, src_srs, tgt_srs):
+    trans_coords = []
+    transform = osr.CoordinateTransformation(src_srs, tgt_srs)
+    for x, y in coords:
+        x, y, z = transform.TransformPoint(x, y)
+        trans_coords.append([x, y])
+    return trans_coords
+
+
+def get_corner_cood(file_path):
+    ds = gdal.Open(file_path + '_B02.jp2')
+    gt = ds.GetGeoTransform()
+    cols = ds.RasterXSize
+    rows = ds.RasterYSize
+    ext = GetExtent(gt, cols, rows)
+    src_srs = osr.SpatialReference()
+    src_srs.ImportFromWkt(ds.GetProjection())
+    src_srs = osr.SpatialReference()
+    src_srs.ImportFromWkt(ds.GetProjection())
+    tgt_srs = src_srs.CloneGeogCS()
+    return ReprojectCoords(ext, src_srs, tgt_srs)
+
+
 def test_method():
     stuff = to_rgb(path, is_linear=False)
     stuff = non_linear_transparent(stuff)
-    export_photo(stuff, 'my-nonlinear.png')
+    coodinates = get_full_cood(path)
+    export_photo(stuff, 'WCP.png')
 
 
-test_method()
+def get_full_cood(file_path=path):
+    coods = get_corner_cood(file_path)
+    for cood in coods:
+        if cood[0] < 0:
+            cood[0] = cood[0] + 360
+    cood_array = np.zeros([image_pixel, image_pixel], dtype=(float, 2))
+    cood_array[0][0] = coods[0]
+    cood_array[image_pixel - 1][0] = coods[1]
+    cood_array[image_pixel - 1][image_pixel - 1] = coods[2]
+    cood_array[0][image_pixel - 1] = coods[3]
+    left_step = ((coods[1][0]-coods[0][0]) / (image_pixel - 1), (coods[1][1]-coods[0][1]) / (image_pixel - 1))
+    right_step = ((coods[2][0]-coods[3][0]) / (image_pixel - 1), (coods[2][1]-coods[3][1]) / (image_pixel - 1))
+    print(coods)
+    print(left_step)
+    print(right_step)
+    for i in range(image_pixel):
+        cood_array[i][0] = (cood_array[0][0][0] + i * left_step[0], cood_array[0][0][1] + i * left_step[1])
+        cood_array[i][image_pixel - 1] = (cood_array[0][image_pixel - 1][0] + i * right_step[0],
+                                          cood_array[0][image_pixel - 1][1] + i * right_step[1])
+
+    for row in range(image_pixel):
+        origin = cood_array[row][0]
+        step = (cood_array[row][10979] - origin) / (image_pixel - 1)
+        for col in range(image_pixel):
+            cood_array[row][col] = (origin[0] + col * step[0], origin[1] + col * step[1])
+    return cood_array
 
 
+#test_method()
+get_full_cood()
