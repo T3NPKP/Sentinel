@@ -2,6 +2,10 @@ import rasterio
 import numpy as np
 from PIL import Image as img
 from osgeo import gdal, ogr, osr
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
+from cartopy.mpl.geoaxes import GeoAxes
 
 path = '/Users/DavidLei/PycharmProjects/untitled/S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE' \
        '/GRANULE/L1C_T01WCP_A011253_20190502T234630/IMG_DATA/T01WCP_20190502T234629'
@@ -150,11 +154,10 @@ def get_corner_cood(file_path):
     return ReprojectCoords(ext, src_srs, tgt_srs)
 
 
-def test_method():
-    stuff = to_rgb(path, is_linear=False)
-    stuff = non_linear_transparent(stuff)
-    coodinates = get_full_cood(path)
-    export_photo(stuff, 'WCP.png')
+def get_colorTuple(rgb):
+    mesh_rgb = rgb[:, :-1, :]
+    colorTuple = mesh_rgb.reshape((mesh_rgb.shape[0] * mesh_rgb.shape[1]), 4)
+    return colorTuple
 
 
 def get_full_cood(file_path=path):
@@ -169,9 +172,6 @@ def get_full_cood(file_path=path):
     cood_array[0][image_pixel - 1] = coods[3]
     left_step = ((coods[1][0]-coods[0][0]) / (image_pixel - 1), (coods[1][1]-coods[0][1]) / (image_pixel - 1))
     right_step = ((coods[2][0]-coods[3][0]) / (image_pixel - 1), (coods[2][1]-coods[3][1]) / (image_pixel - 1))
-    print(coods)
-    print(left_step)
-    print(right_step)
     for i in range(image_pixel):
         cood_array[i][0] = (cood_array[0][0][0] + i * left_step[0], cood_array[0][0][1] + i * left_step[1])
         cood_array[i][image_pixel - 1] = (cood_array[0][image_pixel - 1][0] + i * right_step[0],
@@ -185,5 +185,37 @@ def get_full_cood(file_path=path):
     return cood_array
 
 
-#test_method()
-get_full_cood()
+def transform_north(lons, lats, north_crs, north_xform_crs):
+    pts = north_crs.transform_points(north_xform_crs, lons, lats)
+    x = pts[..., 0]
+    y = pts[..., 1]
+    return x, y
+
+
+def test_method():
+    stuff = to_rgb(path, is_linear=False)
+    stuff = non_linear_transparent(stuff)
+
+    north_crs = ccrs.Orthographic(65, 90)
+    north_globe = ccrs.Globe(semiminor_axis=90)
+    north_xform_crs = ccrs.Geodetic(globe=north_globe)
+
+    lons = np.zeros(image_pixel * image_pixel)
+    lats = np.zeros(image_pixel * image_pixel)
+    coodinates = get_full_cood(path)
+    coodList = np.ndarray.flatten(coodinates)
+    color_list = get_colorTuple(stuff)
+    for i in range(image_pixel * image_pixel):
+        lons[i] = coodList[2 * i]
+        lats[i] = coodList[2 * i + 1]
+
+    fig = plt.figure()
+    lons, lats = transform_north(lons, lats, north_crs, north_xform_crs)
+    GeoAxes._pcolormesh_patched = Axes.pcolormesh
+    ax = plt.axes(projection=north_crs)
+    ax.pcolormesh(lons, lats, color_list, transform=north_crs, color=color_list)
+    plt.savefig('output.png', format="png", bbox_inches='tight', dpi=1200)
+    # export_photo(stuff, 'WCP.png')
+
+
+test_method()
