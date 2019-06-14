@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from cartopy.mpl.geoaxes import GeoAxes
 
-path = '/Users/DavidLei/PycharmProjects/untitled/S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE' \
+path = 'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE' \
        '/GRANULE/L1C_T01WCP_A011253_20190502T234630/IMG_DATA/T01WCP_20190502T234629'
 
 fourteen_bit = 16384
@@ -213,7 +213,8 @@ def test_method():
     lons, lats = transform_north(lons, lats, north_crs, north_xform_crs)
     GeoAxes._pcolormesh_patched = Axes.pcolormesh
     ax = plt.axes(projection=north_crs)
-    ax.pcolormesh(lons, lats, color_list, transform=north_crs, color=color_list)
+    data = np.zeros([image_pixel * image_pixel, 4])
+    ax.pcolormesh(lons, lats, data, transform=north_crs, color=color_list)
     plt.savefig('output.png', format="png", bbox_inches='tight', dpi=1200)
     # export_photo(stuff, 'WCP.png')
 
