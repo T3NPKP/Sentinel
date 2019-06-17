@@ -213,8 +213,11 @@ def test_method():
     lons, lats = transform_north(lons, lats, north_crs, north_xform_crs)
     GeoAxes._pcolormesh_patched = Axes.pcolormesh
     ax = plt.axes(projection=north_crs)
-    data = np.zeros([image_pixel * image_pixel, 4])
-    ax.pcolormesh(lons, lats, data, transform=north_crs, color=color_list)
+    data = np.zeros([int(image_pixel * image_pixel/10), 4], dtype=np.uint8)
+    onePortion = image_pixel / 10
+    for i in range(10):
+        ax.pcolormesh(lons[i * onePortion: (i+1) * onePortion], lats[i * onePortion: (i+1) * onePortion],
+                      data, transform=north_crs, color=color_list[i * onePortion: (i+1) * onePortion, :])
     plt.savefig('output.png', format="png", bbox_inches='tight', dpi=1200)
     # export_photo(stuff, 'WCP.png')
 
