@@ -235,7 +235,8 @@ def test_method(file_paths):
         ax.pcolormesh(lons, lats, data, transform=north_crs, color=color_list)
         i += 1
 
-    plt.savefig('output.png', format="png", bbox_inches='tight', dpi=200)
+    plt.savefig('output.png', format="png", bbox_inches='tight', dpi=2000)
+    print('done')
 
 
 test_method(['S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE/GRANULE/L1C_T01WCP_A011253_20190502T234630/IMG_DATA/T01WCP_20190502T234629',
