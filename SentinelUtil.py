@@ -6,6 +6,7 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from cartopy.mpl.geoaxes import GeoAxes
+from tqdm import tqdm
 
 path = 'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE' \
        '/GRANULE/L1C_T01WCP_A011253_20190502T234630/IMG_DATA/T01WCP_20190502T234629'
@@ -26,10 +27,10 @@ def linear_scale(original):
     print('to linear scaling')
     counter = 0
     new = (255.0 / original.max() * (original - original.min())).astype(np.uint8)
-    for i in range(len(new)):
+    for i in tqdm(range(len(new))):
         counter += 1
-        if counter % 100 == 0:
-            print(f'dealing with {counter}th row')
+        # if counter % 100 == 0:
+            # print(f'dealing with {counter}th row')
         for j in range(len(new[0])):
             if new[i, j, 0] == 0 and new[i, j, 1] == 0 and new[i, j, 2] == 0:
                 new[i, j] = [255, 255, 255, 0]
@@ -45,11 +46,11 @@ def non_liner_scale(original, threshold_low, threshold_high):
     offset = - threshold_low * slope
     new = np.copy(original)
     # print(new[0, 0])
-    for i in range(len(new)):
+    for i in tqdm(range(len(new))):
         counter += 1
-        if counter % 100 == 0:
+        # if counter % 100 == 0:
             # print(new[i, 0])
-            print(f'dealing with {counter}th row')
+            # print(f'dealing with {counter}th row')
         for j in range(len(new[0])):
             new[i, j, 0] = max(0, min(255, (new[i, j, 0] * slope - offset)))
             new[i, j, 1] = max(0, min(255, (new[i, j, 1] * slope - offset)))
@@ -105,10 +106,10 @@ def non_linear_transparent(new):
     green_min = np.amin(new[:, :, 1])
     blue_min = np.amin(new[:, :, 2])
     counter = 0
-    for i in range(len(new)):
+    for i in tqdm(range(len(new))):
         counter += 1
-        if counter % 100 == 0:
-            print(f'dealing with {counter}th row')
+        # if counter % 100 == 0:
+            # print(f'dealing with {counter}th row')
         for j in range(len(new[0])):
             if new[i, j, 0] <= red_min and new[i, j, 1] <= green_min and new[i, j, 2] <= blue_min:
                 new[i, j] = [255, 255, 255, 0]
@@ -134,7 +135,7 @@ def GetExtent(gt, cols, rows):
 def ReprojectCoords(coords, src_srs, tgt_srs):
     trans_coords = []
     transform = osr.CoordinateTransformation(src_srs, tgt_srs)
-    for x, y in coords:
+    for x, y in tqdm(coords):
         x, y, z = transform.TransformPoint(x, y)
         trans_coords.append([x, y])
     return trans_coords
@@ -156,11 +157,13 @@ def get_corner_cood(file_path):
 
 def get_colorTuple(rgb):
     mesh_rgb = rgb[:, :-1, :]
-    colorTuple = mesh_rgb.reshape((mesh_rgb.shape[0] * mesh_rgb.shape[1]), 4)
+    temp = mesh_rgb.reshape((mesh_rgb.shape[0] * mesh_rgb.shape[1]), 4)
+    colorTuple = temp / 255
     return colorTuple
 
 
-def get_full_cood(file_path=path):
+def get_full_cood(file_path):
+    print("cood")
     coods = get_corner_cood(file_path)
     for cood in coods:
         if cood[0] < 0:
@@ -170,14 +173,15 @@ def get_full_cood(file_path=path):
     cood_array[image_pixel - 1][0] = coods[1]
     cood_array[image_pixel - 1][image_pixel - 1] = coods[2]
     cood_array[0][image_pixel - 1] = coods[3]
-    left_step = ((coods[1][0]-coods[0][0]) / (image_pixel - 1), (coods[1][1]-coods[0][1]) / (image_pixel - 1))
-    right_step = ((coods[2][0]-coods[3][0]) / (image_pixel - 1), (coods[2][1]-coods[3][1]) / (image_pixel - 1))
+    left_step = ((coods[1][0] - coods[0][0]) / (image_pixel - 1), (coods[1][1] - coods[0][1]) / (image_pixel - 1))
+    right_step = ((coods[2][0] - coods[3][0]) / (image_pixel - 1), (coods[2][1] - coods[3][1]) / (image_pixel - 1))
     for i in range(image_pixel):
         cood_array[i][0] = (cood_array[0][0][0] + i * left_step[0], cood_array[0][0][1] + i * left_step[1])
         cood_array[i][image_pixel - 1] = (cood_array[0][image_pixel - 1][0] + i * right_step[0],
                                           cood_array[0][image_pixel - 1][1] + i * right_step[1])
 
-    for row in range(image_pixel):
+    for row in tqdm(range(image_pixel)):
+        # print(f'cood {row}th row')
         origin = cood_array[row][0]
         step = (cood_array[row][10979] - origin) / (image_pixel - 1)
         for col in range(image_pixel):
@@ -192,34 +196,49 @@ def transform_north(lons, lats, north_crs, north_xform_crs):
     return x, y
 
 
-def test_method():
-    stuff = to_rgb(path, is_linear=False)
+def getInfos(file_path, north_crs, north_xform_crs):
+    stuff = to_rgb(file_path, is_linear=False)
     stuff = non_linear_transparent(stuff)
 
-    north_crs = ccrs.Orthographic(65, 90)
+    lons = np.zeros([image_pixel, image_pixel])
+    lats = np.zeros([image_pixel, image_pixel])
+    coodinates = get_full_cood(file_path)
+
+    lons, lats = transform_north(lons, lats, north_crs, north_xform_crs)
+
+    color_list = get_colorTuple(stuff)
+
+    for i in range(image_pixel):
+        # print(f'lons, lats @{i}')
+        for j in range(image_pixel):
+            lons[i][j] = coodinates[i, j, 0]
+            lats[i][j] = coodinates[i, j, 1]
+    return color_list, lons, lats
+
+
+def test_method(file_paths):
+    print('globe')
+    north_crs = ccrs.Orthographic(0, 90)
     north_globe = ccrs.Globe(semiminor_axis=90)
     north_xform_crs = ccrs.Geodetic(globe=north_globe)
 
-    lons = np.zeros(image_pixel * image_pixel)
-    lats = np.zeros(image_pixel * image_pixel)
-    coodinates = get_full_cood(path)
-    coodList = np.ndarray.flatten(coodinates)
-    color_list = get_colorTuple(stuff)
-    for i in range(image_pixel * image_pixel):
-        lons[i] = coodList[2 * i]
-        lats[i] = coodList[2 * i + 1]
-
     fig = plt.figure()
-    lons, lats = transform_north(lons, lats, north_crs, north_xform_crs)
     GeoAxes._pcolormesh_patched = Axes.pcolormesh
     ax = plt.axes(projection=north_crs)
-    data = np.zeros([int(image_pixel * image_pixel/10), 4], dtype=np.uint8)
-    onePortion = image_pixel / 10
-    for i in range(10):
-        ax.pcolormesh(lons[i * onePortion: (i+1) * onePortion], lats[i * onePortion: (i+1) * onePortion],
-                      data, transform=north_crs, color=color_list[i * onePortion: (i+1) * onePortion, :])
-    plt.savefig('output.png', format="png", bbox_inches='tight', dpi=1200)
-    # export_photo(stuff, 'WCP.png')
+    data = np.zeros([image_pixel, image_pixel], dtype=np.uint8)
+    GeoAxes._pcolormesh_patched = Axes.pcolormesh
+    i = 1
+
+    for file_path in file_paths:
+        print(f'file #{i}')
+        color_list, lons, lats = getInfos(file_path, north_crs, north_xform_crs)
+        ax.pcolormesh(lons, lats, data, transform=north_crs, color=color_list)
+        i += 1
+
+    plt.savefig('output.png', format="png", bbox_inches='tight', dpi=200)
 
 
-test_method()
+test_method(['S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE/GRANULE/L1C_T01WCP_A011253_20190502T234630/IMG_DATA/T01WCP_20190502T234629',
+             'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCQ_20190503T012751.SAFE/GRANULE/L1C_T01WCQ_A011253_20190502T234630/IMG_DATA/T01WCQ_20190502T234629',
+             'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCR_20190503T012751.SAFE/GRANULE/L1C_T01WCR_A011253_20190502T234630/IMG_DATA/T01WCR_20190502T234629',
+             'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCT_20190503T012751.SAFE/GRANULE/L1C_T01WCT_A011253_20190502T234630/IMG_DATA/T01WCT_20190502T234629'])
