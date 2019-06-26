@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from cartopy.mpl.geoaxes import GeoAxes
 from tqdm import tqdm
+import mpl_toolkits.basemap as bm
 
 path = 'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE' \
        '/GRANULE/L1C_T01WCP_A011253_20190502T234630/IMG_DATA/T01WCP_20190502T234629'
@@ -221,25 +222,40 @@ def test_method(file_paths):
     north_crs = ccrs.Orthographic(0, 90)
     north_globe = ccrs.Globe(semiminor_axis=90)
     north_xform_crs = ccrs.Geodetic(globe=north_globe)
+    colorlists = [len(file_paths)]
+    lonslist = [len(file_paths)]
+    latslist = [len(file_paths)]
 
     fig = plt.figure()
     GeoAxes._pcolormesh_patched = Axes.pcolormesh
     ax = plt.axes(projection=north_crs)
-    data = np.zeros([image_pixel, image_pixel], dtype=np.uint8)
+    ax.coastlines()
+    # data = np.zeros([image_pixel, image_pixel], dtype=np.uint8)
     GeoAxes._pcolormesh_patched = Axes.pcolormesh
-    i = 1
+    i = 0
 
-    for file_path in file_paths:
+    for i in range(len(file_paths)):
         print(f'file #{i}')
-        color_list, lons, lats = getInfos(file_path, north_crs, north_xform_crs)
-        ax.pcolormesh(lons, lats, data, transform=north_crs, color=color_list)
-        i += 1
+        color_list, lons, lats = getInfos(file_paths[i], north_crs, north_xform_crs)
+        colorlists[i] = color_list
+        lonslist[i] = lons
+        latslist[i] = lats
+        # ax.pcolormesh(lons, lats, data, transform=north_crs, color=color_list)
+
+    color = np.zeros([image_pixel*image_pixel * len(file_paths), 4], dtype=np.uint8)
+    lon = np.zeros([image_pixel * len(file_paths), image_pixel])
+    lat = np.zeros([image_pixel * len(file_paths), image_pixel])
+    for j in range(len(colorlists)):
+        color[j * image_pixel * image_pixel: (j + 1) * image_pixel * image_pixel] = colorlists[j]
+        lon[j * image_pixel: (j + 1) * image_pixel, :] = lonslist[j]
+        lat[j * image_pixel: (j + 1) * image_pixel, :] = latslist[j]
+    data = np.zeros([len(lon), len(lon[0])], dtype=np.uint8)
+    ax.pcolormesh(lon, lat, data, transform=north_crs, color=color)
 
     plt.savefig('output.png', format="png", bbox_inches='tight', dpi=2000)
     print('done')
 
 
 test_method(['S2B_MSIL1C_20190502T234629_N0207_R073_T01WCP_20190503T012751.SAFE/GRANULE/L1C_T01WCP_A011253_20190502T234630/IMG_DATA/T01WCP_20190502T234629',
-             'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCQ_20190503T012751.SAFE/GRANULE/L1C_T01WCQ_A011253_20190502T234630/IMG_DATA/T01WCQ_20190502T234629',
-             'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCR_20190503T012751.SAFE/GRANULE/L1C_T01WCR_A011253_20190502T234630/IMG_DATA/T01WCR_20190502T234629',
-             'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCT_20190503T012751.SAFE/GRANULE/L1C_T01WCT_A011253_20190502T234630/IMG_DATA/T01WCT_20190502T234629'])
+             'S2B_MSIL1C_20190502T234629_N0207_R073_T01WCR_20190503T012751.SAFE/GRANULE/L1C_T01WCR_A011253_20190502T234630/IMG_DATA/T01WCR_20190502T234629'])
+

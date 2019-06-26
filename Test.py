@@ -1,8 +1,8 @@
 from sentinelsat import read_geojson, geojson_to_wkt
 from Downloader import Downloader
 import StringProcessor as process
-import geopandas
-import globeBuilder as builder
+import zipfile
+import os
 
 username = 'kepeilei'
 password = '297089702yuxiaO'
@@ -15,6 +15,7 @@ keys = []
 downloader = Downloader(username, password, link)
 wkt = geojson_to_wkt(read_geojson(path))
 downloader.search_polygon(wkt, '20190501', '20190503', str_platform_name=from_satelite, percentage=(0, 100))
+f = open('FileList.txt', 'w+')
 for key, value in downloader.products.items():
     if "S2B_MSIL1C" in str(value):
         # print('downloading')
@@ -22,12 +23,18 @@ for key, value in downloader.products.items():
         # print(value)
         package_info.append(str(value))
         keys.append(str(key))
-        # print(package_info)
-        # downloader.download_one(str(key), path='/Users/DavidLei/PycharmProjects/untitled')
-num = 3
-print(f'downloading {package_info[num]}')
-downloader.download_one(keys[num], path='/Users/DavidLei/PycharmProjects/untitled')
-print(keys)
+        print(value['title'])
+        downloader.download_one(str(key), path='/Users/DavidLei/PycharmProjects/untitled')
+        zf = zipfile.ZipFile(value['title'] + '.zip')
+        zf.extractall()
+        zf.close()
+        f.write(value['filename'] + '\n')
+        os.remove('/Users/DavidLei/PycharmProjects/untitled/' + value['title'] + '.zip')
+
+# num = 3
+# print(f'downloading {package_info[num]}')
+# downloader.download_one(keys[num], path='/Users/DavidLei/PycharmProjects/untitled')
+# print(keys)
 
 processed_strings = []
 for original_string in package_info:
